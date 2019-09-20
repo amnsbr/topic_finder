@@ -1,0 +1,17 @@
+{% extends 'topic_finder/base.html' %}
+{% load bootstrap_tags %}
+{%block title %}Group authors for {{term}}{% endblock %}
+{% block content %}
+			<div class="col-md-2"></div>
+			<div class="col-md-8">
+			{% for group in groups %}
+				<div>
+					{% for pid in group %}
+					<div><a href="https://www.ncbi.nlm.nih.gov/pubmed/{{pid}}">{{pid}}</a></div>
+					{%endfor%}
+				</div>
+				<hr>
+			{% endfor %}
+			</div>
+			<div class="col-md-2"></div>
+{% endblock %}

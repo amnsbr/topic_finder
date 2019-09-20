@@ -1,0 +1,175 @@
+<html lang="fa-IR"><!--<![endif]-->
+<head>
+    <title>Topic Finder - {%block title %}{% endblock %}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+{% load staticfiles %}   
+	<link rel="shortcut icon" type="image/png" href={% static 'images/weather_clear_night.png'%} %}/>
+
+	<script type="text/javascript" src={% static 'js/jquery-1.12.4.js' %}></script>
+	<link rel="stylesheet" href={% static 'css/bootstrap.min.css' %}	type="text/css" media="all">
+	<script type="text/javascript" src={% static 'js/bootstrap.min.js' %}></script>
+	<link rel="stylesheet" href={% static 'css/datatables.min.css' %}	type="text/css" media="all">
+	<script type="text/javascript" src={% static 'js/datatables.min.js' %}></script>
+<script>
+$(document).ready(function() {
+	$("#help").hide();
+	
+	$("#toggle_help").click( function() {
+		$("#help").toggle();
+	});
+});
+</script>
+	
+<style>
+#main {
+	background-color:white;
+	border: 1px solid #d8d8d8;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	background-color: #fff;
+	border-bottom-width: 2px;
+	padding: 20px 20px;
+	box-shadow: 0 0 5px #ccc;
+	-moz-box-shadow: 0 0 5px #ccc;
+	-webkit-box-shadow: 0 0 5px #ccc;
+}
+
+
+.row {
+	margin-top: 5px;
+	margin-right:5px;
+	margin-left:5px;
+}
+
+.main_row {
+	margin-top: 15px;
+	//margin-bottom: 15px;
+}
+
+.copyright_row {
+	margin-bottom: 15px;
+	font-size: 10px;
+	color: grey;
+}
+
+
+body {
+	background-color: #e5e5e5;
+}
+
+div#messages {
+	position:absolute;
+	z-index:1000;
+	top:0;
+	left:0;
+}
+
+
+td,th {
+	text-align: center;
+}
+
+.align-left {
+	text-align: left;
+}
+
+.blue {
+	color: blue;
+}
+.red {
+	color: red;
+}
+
+.header {
+	margin-bottom: 10px;
+}
+
+.header-text {
+	font-size:2em;
+	vertical-align:middle
+}
+
+#header-icon {
+	height: 4em;
+}
+.bs-wizard-info, .bs-wizard-stepnum {
+	visibility: hidden;
+}
+
+.help-btn {
+	position: absolute;
+	top:0px;
+	left:0px;
+	padding:0;
+}
+
+.btn-sharp {
+	border-top-left-radius: 3px;
+	border-top-right-radius: 0px;
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+.dt-btns {
+	float:left;
+}
+</style>	
+	
+{% block head %}
+{% endblock %}
+</head>
+<body class="home profile" id="dummybodyid">
+		{% if messages %}
+		{% for message in messages %}
+		<div id="messages">
+			<div class="alert alert-danger alert-dismissable">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				{{message}}
+			</div>
+		</div>
+		{% endfor %}
+		{% endif %}
+	<div class="row main_row">
+		<div class="col-md-2 main_grid"></div>
+		<div id="main" class="col-md-8 main_grid">
+			<div class="help-btn"><!--absolute-->
+				<button class="btn btn-primary btn-sm btn-sharp" id="toggle_help"><i class="glyphicon glyphicon-question-sign"></i></button>
+			</div>
+
+			{# block header #}
+			<div class="header row">
+				<div class="col-md-2"></div>
+				<div class="col-md-8 text-center">
+				<span><img id="header-icon" src="{% static 'images/weather_clear_night.png'%}" %}/></span>
+				<span class="header-text">Topic Finder</span>
+				
+				</div>
+				<div class="col-md-2"></div>			
+			</div>			
+			{# endblock #}
+			
+			
+			<div class="header row">
+				<div class="col-md-2"></div>
+				<div id="help" class="col-md-8 align-left">
+				{% block help %}{%endblock%}
+				</div>
+				<div class="col-md-2"></div>			
+			</div>			
+			
+			<div class="content row">
+				{% block content%}
+
+				{% endblock %}
+			</div>
+						
+        </div>
+		<div class="col-md-2 main_grid"></div>
+	</div>
+	<div class="row copyright_row">
+		<div class="col-md-2"></div>			
+		<div class="col-md-8">
+		Amin Saberi. Version 1.0
+		</div>
+		<div class="col-md-2"></div>
+</body>

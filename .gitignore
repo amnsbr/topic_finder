@@ -1,0 +1,13 @@
+*.py[co]
+*.sw[po]
+*.bak
+*.orig
+*~
+.project
+.pydevproject
+db.sqlite3
+dev_env
+prod_env
+static
+logs/celery.log
+html

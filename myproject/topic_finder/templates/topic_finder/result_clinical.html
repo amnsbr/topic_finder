@@ -1,0 +1,190 @@
+{% extends 'topic_finder/base.html' %}
+{% block head %}
+<style>
+/*table {
+  border-collapse: separate;
+  border-spacing: 0;
+  color: #4a4a4d;
+  font: 14px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+th,
+td {
+  padding: 10px 15px;
+  vertical-align: middle;
+}*//*
+thead {
+  background: #395870;
+  background: linear-gradient(#49708f, #293f50);
+  color: #fff;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+th:first-child {
+  border-top-left-radius: 5px;
+  text-align: left;
+}
+th:last-child {
+  border-top-right-radius: 5px;
+}
+*//*
+tbody tr:nth-child(even) {
+  background: #f0f0f2;
+}
+td {
+  border-bottom: 1px solid #cecfd5;
+  border-right: 1px solid #cecfd5;
+}
+td:first-child {
+  border-left: 1px solid #cecfd5;
+}
+.book-title {
+  color: #395870;
+  display: block;
+}
+.text-offset {
+  color: #7c7c80;
+  font-size: 12px;
+}
+.item-stock,
+.item-qty {
+  text-align: center;
+}
+.item-price {
+  text-align: right;
+}
+.item-multiple {
+  display: block;
+}
+tfoot {
+  text-align: right;
+}
+tfoot tr:last-child {
+  background: #f0f0f2;
+  color: #395870;
+  font-weight: bold;
+}
+tfoot tr:last-child td:first-child {
+  border-bottom-left-radius: 5px;
+}
+tfoot tr:last-child td:last-child {
+  border-bottom-right-radius: 5px;
+}*/
+</style>
+{% load staticfiles %}   
+
+<script type="text/javascript" src={% static 'js/jquery-1.12.4.js' %}></script>
+
+
+<script>
+function request_progress(id) {
+	$.ajax({
+		type:'GET',
+		url: "{% url 'topic_finder:get_progress' %}",
+		data: {'id':id,
+				'clinical':1},
+		success: function(response){
+			response_data = JSON.parse(response);
+			document.getElementById('progress').innerHTML = response_data['done'] + '/' + response_data['total'];
+			document.getElementById('current_keyword').innerHTML = response_data['current_keyword'];
+			//document.getElementById('progress').innerHTML = response;
+			//return JSON.parse(response);
+			if (response_data['done'] != 0 && response_data['done'] === response_data['total']) {
+				clearInterval(interval);
+				document.getElementById('current_keyword').innerHTML = "Done";
+			}
+		},
+		error: function() {
+			alert("Error in update_data()");
+		}
+	});
+}
+function update_progress() {
+	var id = {{ctfresult.pk}};
+	request_progress(id);
+}
+var interval = setInterval(update_progress, 3000);
+</script>
+{% endblock %}
+{% block title %}Result {{ctfresult.id}}{% endblock %}
+{% block content %}
+                <div class="info text-justify">
+				<div><strong>Base query is: </strong> {{ctfresult.ctfinput.get_base_query}}</div>
+				<div><strong>Keywords of articles resulted from this search has been extracted: </strong> {{ctfresult.ctfinput.get_search_query}}</div>
+				<div style="margin-left:20px;">{{no_keywords|length}} articles had no keywords or MeSH headings: </strong> 
+					{% for id in no_keywords%}
+					<a href='http://www.ncbi.nlm.nih.gov/pubmed/{{id}}'>{{id}}</a> | 
+					{% endfor %}
+				</div>
+				<div><strong>Progress: </strong><span id="progress">&nbsp;</span></div> 
+                <div><strong>Current Keyword: </strong><span id="current_keyword">&nbsp;</span></div>
+				<div><strong>Number of artciels visited: </strong> {{visited_count}}</div>
+				<div><strong>Total Keywords Count: </strong> {{total_keywords_count}}</div>	
+				<div style="text-align:right; margin-bottom:10px;"><a class="btn btn-success" href="{% url 'topic_finder:resume' id=ctfresult.pk %}?clinical=1">Resume</a></div>
+                </div>			
+                </div>
+				<table class="table table-striped table-bordered">
+					<thead>
+						<tr>
+							<th class="col-md-1">#</th>
+							<th class="col-md-4">keyword</th>
+							<th class="col-md-1"># from_disease title</th>
+							<th class="col-md-1"># studytype in title</th>
+							<th class="col-md-1"># in title</th>
+							<th class="col-md-1"># in topic</th>
+							<th class="col-md-1"># wide </th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for keyword_data in keywords_data %}
+						<tr>
+							<td>{{forloop.counter|add:start_number}}</td>
+							<td class="align-left">{{keyword_data.0}}</td>
+							<td><a href='http://www.ncbi.nlm.nih.gov/pubmed/?term={{ctfresult.ctfinput.get_search_query}} AND "{{keyword_data.0}}"[Title]'>{{keyword_data.1.from_disease_count}}</a></td>
+							<td><a href='http://www.ncbi.nlm.nih.gov/pubmed/?term={{ctfresult.ctfinput.to_disease}} AND {{ctfresult.ctfinput.get_type_query}} AND "{{keyword_data.0}}"[Title]'>{{keyword_data.1.title_studytype_count}}</a></td>
+							<td><a href='http://www.ncbi.nlm.nih.gov/pubmed/?term={{ctfresult.ctfinput.to_disease}} AND "{{keyword_data.0}}"[Title]'>{{keyword_data.1.title_count}}</a></td>
+							<td><a href='http://www.ncbi.nlm.nih.gov/pubmed/?term={{ctfresult.ctfinput.to_disease}} AND "{{keyword_data.0}}"'>{{keyword_data.1.topic_count}}</a></td>
+							<td><a href='http://www.ncbi.nlm.nih.gov/pubmed/?term={{ctfresult.ctfinput.get_to_disease_wo_title}} AND "{{keyword_data.0}}"'>{{keyword_data.1.wide_count}}</a></td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				{% if full_results %}
+				<div>Visited IDs: 
+					{% for id in visited_ids%}
+					<a href='http://www.ncbi.nlm.nih.gov/pubmed/{{id}}'>{{id}}</a> | 
+					{% endfor %}
+				</div>
+				{% else %}
+				<div>
+					<a href='?full=1'>Show full results</a>
+				</div>
+				{% endif %}
+			<div class="pagination">
+			    <span class="step-links">
+			        {% if keywords_data.has_previous %}
+			            {% if full_results %}
+			            <a href="?full=1&page=1">&laquo; first</a>
+			            <a href="?full=1&page={{ keywords_data.previous_page_number }}">previous</a>
+			            {% else %}
+			            <a href="?page=1">&laquo; first</a>
+			            <a href="?page={{ keywords_data.previous_page_number }}">previous</a>
+			            {% endif %}
+			        {% endif %}
+
+			        <span class="current">
+			            Page {{ keywords_data.number }} of {{ keywords_data.paginator.num_pages }}.
+			        </span>
+
+			        {% if keywords_data.has_next %}
+			            {% if full_results %}
+			            <a href="?full=1&page={{ keywords_data.next_page_number }}">next</a>
+			            <a href="?full=1&page={{ keywords_data.paginator.num_pages }}">last &raquo;</a>
+			            {% else %}
+			            <a href="?page={{ keywords_data.next_page_number }}">next</a>
+			            <a href="?page={{ keywords_data.paginator.num_pages }}">last &raquo;</a>
+			            {% endif %}
+			        {% endif %}
+			    </span>
+			</div>
+{%endblock%}

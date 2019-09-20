@@ -1,0 +1,20 @@
+{% extends 'topic_finder/base.html' %}
+{% load bootstrap_tags %}
+{%block title %}Start{% endblock %}
+{% block head %}
+{% endblock %}
+{% block help %}
+			Enter the starting date of your clinical rotation and its duration:
+{% endblock %}
+{% block content %}
+			<div class="col-md-2"></div>
+			<div class="col-md-8">
+			<form class="form-horizontal" action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+			{{form|as_bootstrap}}
+			<div class="form-actions">
+			  <button type="submit" class="btn btn-primary">Next</button>
+			</div>
+			</form>
+			</div>
+			<div class="col-md-2"></div>
+{% endblock %}
